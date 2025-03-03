@@ -9,9 +9,12 @@ import { ThxLayout } from "./thx/ThxLayout";
 import { Gap } from "@alfalab/core-components/gap";
 import { StatusBadge } from "@alfalab/core-components/status-badge";
 import { Grid } from "@alfalab/core-components/grid";
+import { sendDataToGA } from "./utils/events.ts";
 
 interface Service {
   name: string;
+  key: string;
+  value: number;
   descriptions: string[];
 }
 
@@ -25,18 +28,26 @@ const one: Category = {
   services: [
     {
       name: "Сервис “Заправки”",
+      key: "fuel",
+      value: 0,
       descriptions: ["Поиск и оплата заправок в два клика с кэшбэком от банка"],
     },
     {
       name: "Запись на шиномонтаж",
+      key: "tires",
+      value: 0,
       descriptions: ["Поможем найти, выбрать и записаться на шиномонтаж"],
     },
     {
       name: "Вызов эвакуатора",
+      key: "evacuator",
+      value: 0,
       descriptions: ["Поможем перевезти ваш авто в любую точку по городу"],
     },
     {
       name: "Запись в автосервис",
+      key: "service",
+      value: 0,
       descriptions: ["Поможем найти, выбрать и записаться в автосервис"],
     },
   ],
@@ -47,20 +58,28 @@ const two: Category = {
   services: [
     {
       name: "Календарь событий",
+      key: "calendar",
+      value: 0,
       descriptions: [
         "Все напоминания об обслуживании, страховках и покупках в одном месте",
       ],
     },
     {
       name: "Оспорить штраф ГАИ",
+      key: "dispute",
+      value: 0,
       descriptions: ["Поможем оспорить штраф ГАИ, с которым вы не согласны"],
     },
     {
       name: "Продлить страховку",
+      key: "insurance",
+      value: 0,
       descriptions: ["Продлить страховку по лучшим условиям за два клика"],
     },
     {
       name: "Кэшбэк от партнеров",
+      key: "cashback",
+      value: 0,
       descriptions: [
         "Компании партнеры с повышенным кэшбэком от банка на авто-товары",
       ],
@@ -73,16 +92,22 @@ const three: Category = {
   services: [
     {
       name: "Оценка стоимости",
+      key: "estimation",
+      value: 0,
       descriptions: [
         "Следите за изменением рыночной стоимости вашего автомобиля",
       ],
     },
     {
       name: "Покупка авто",
+      key: "buy_auto",
+      value: 0,
       descriptions: ["Поможем найти, подобрать и купить новый автомобиль"],
     },
     {
       name: "Заявка на авто-кредит",
+      key: "auto_credit",
+      value: 0,
       descriptions: ["Узнать условия и подать заявку на авто-кредит"],
     },
   ],
@@ -101,19 +126,31 @@ export const App = () => {
     );
 
     if (find) {
+      service.value = 0;
+
       setSelectedServices([
         ...selectedServices.filter(
           (savedService) => savedService.name !== service.name,
         ),
       ]);
     } else {
+      service.value = 1;
       setSelectedServices([...selectedServices, service]);
     }
   };
 
   const submit = () => {
     setLoading(true);
-    Promise.resolve().then(() => {
+
+    const result = variants
+      .reduce((acc: Service[], curr) => [...acc, ...curr.services], [])
+      .reduce((acc: Record<string, number>, curr) => {
+        acc[curr.key] = curr.value;
+
+        return acc;
+      }, {});
+
+    sendDataToGA({ ...result }).then(() => {
       LS.setItem(LSKeys.ShowThx, true);
       setThx(true);
       setLoading(false);
@@ -150,9 +187,6 @@ export const App = () => {
           {variants.map((variant, index, array) => {
             return (
               <React.Fragment key={variant.name}>
-                {/*<Typography.Text view="primary-large" weight="bold">*/}
-                {/*  {variant.name}*/}
-                {/*</Typography.Text>*/}
                 <Typography.TitleResponsive
                   tag="h3"
                   view="small"
