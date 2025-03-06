@@ -1,8 +1,6 @@
 import { Typography } from "@alfalab/core-components/typography";
-import { ButtonMobile } from "@alfalab/core-components/button/mobile";
 import img from "../assets/img.png";
 import { thxSt } from "./style.css";
-import { appSt } from "../style.css.ts";
 
 export const ThxLayout = () => {
   return (
@@ -26,12 +24,6 @@ export const ThxLayout = () => {
         <Typography.Text tag="p" view="primary-medium" defaultMargins={false}>
           Вы поучаствовали в очень важном исследовании. Вы – наш герой!
         </Typography.Text>
-      </div>
-
-      <div className={appSt.bottomBtn}>
-        <ButtonMobile block view="primary" href="">
-          Хорошо
-        </ButtonMobile>
       </div>
     </>
   );
